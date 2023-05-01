@@ -1,7 +1,417 @@
-kind: ConfigMap
 apiVersion: v1
+kind: ConfigMap
 metadata:
-  name: CM
+  name: postgres-init-script
   namespace: default
 data:
-  key: default
+  init.sql: |
+    CREATE DATABASE api_backend;
+
+    CREATE USER admin;
+
+    GRANT ALL PRIVILEGES ON DATABASE api_backend TO admin;
+
+    \c api_backend;
+
+    -- Table: public.api
+
+    -- DROP TABLE IF EXISTS public.api;
+
+    CREATE TABLE IF NOT EXISTS public.api
+    (
+        api_id text COLLATE pg_catalog."default" NOT NULL,
+        api_name text COLLATE pg_catalog."default",
+        api_version text COLLATE pg_catalog."default",
+        api_protocol text COLLATE pg_catalog."default",
+        api_context text COLLATE pg_catalog."default",
+        tenant_id text COLLATE pg_catalog."default",
+        api_state text COLLATE pg_catalog."default",
+        api_created_time text COLLATE pg_catalog."default",
+        api_updated_time text COLLATE pg_catalog."default",
+        CONSTRAINT api_new_pkey PRIMARY KEY (api_id)
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+      ALTER TABLE IF EXISTS public.api
+        OWNER to postgres;
+
+
+    -- Table: public.api_spec
+
+    -- DROP TABLE IF EXISTS public.api_spec;
+
+    CREATE TABLE IF NOT EXISTS public.api_spec
+    (
+        api_id text COLLATE pg_catalog."default" NOT NULL,
+        api_spec text COLLATE pg_catalog."default",
+        CONSTRAINT spec_new_pkey PRIMARY KEY (api_id),
+        CONSTRAINT fk_spec_api FOREIGN KEY (api_id)
+            REFERENCES public.api (api_id) MATCH SIMPLE
+            ON UPDATE NO ACTION
+            ON DELETE CASCADE
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.api_spec
+        OWNER to postgres;
+
+    -- Table: public.application
+    -- DROP TABLE IF EXISTS public.application;
+    CREATE TABLE IF NOT EXISTS public.application
+    (
+    application_application_id text COLLATE pg_catalog."default" NOT NULL,
+    application_application_name text COLLATE pg_catalog."default",
+    tenant_id text COLLATE pg_catalog."default",
+    user_id text COLLATE pg_catalog."default",
+    app_created_time text COLLATE pg_catalog."default",
+    app_updated_time text COLLATE pg_catalog."default",
+    application_desc text COLLATE pg_catalog."default",
+    CONSTRAINT application_pkey PRIMARY KEY (application_application_id)
+    )
+    WITH (
+    OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+    ALTER TABLE IF EXISTS public.application
+    OWNER to postgres;
+
+    -- Table: public.auth_scope_mapping
+
+    -- DROP TABLE IF EXISTS public.auth_scope_mapping;
+
+    CREATE TABLE IF NOT EXISTS public.auth_scope_mapping
+    (
+        api_id text COLLATE pg_catalog."default" NOT NULL,
+        scope_name text COLLATE pg_catalog."default" NOT NULL,
+        scope_level text COLLATE pg_catalog."default",
+        scope_resource_id text COLLATE pg_catalog."default" NOT NULL,
+        scope_method text COLLATE pg_catalog."default" NOT NULL,
+        CONSTRAINT auth_scope_mapping_pkey PRIMARY KEY (api_id, scope_name, scope_resource_id, scope_method),
+        CONSTRAINT fk_auth_scope_api FOREIGN KEY (api_id)
+            REFERENCES public.api (api_id) MATCH SIMPLE
+            ON UPDATE NO ACTION
+            ON DELETE CASCADE
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.auth_scope_mapping
+        OWNER to postgres;
+
+
+    -- Table: public.pool
+
+    -- DROP TABLE IF EXISTS public.pool;
+
+    CREATE TABLE IF NOT EXISTS public.pool
+    (
+        pool_type text COLLATE pg_catalog."default" NOT NULL,
+        pool_strategy text COLLATE pg_catalog."default" NOT NULL,
+        pool_protocol text COLLATE pg_catalog."default" NOT NULL,
+        pool_id text COLLATE pg_catalog."default" NOT NULL,
+        tenant_id text COLLATE pg_catalog."default" NOT NULL,
+        pool_name text COLLATE pg_catalog."default",
+        CONSTRAINT pool_pkey PRIMARY KEY (pool_id, tenant_id),
+        CONSTRAINT pool_pool_id_key UNIQUE (pool_id)
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.pool
+        OWNER to postgres;
+
+
+    -- Table: public.backend
+
+    -- DROP TABLE IF EXISTS public.backend;
+
+    CREATE TABLE IF NOT EXISTS public.backend
+    (
+        backend_pool_id text COLLATE pg_catalog."default" NOT NULL,
+        backend_host text COLLATE pg_catalog."default",
+        backend_port text COLLATE pg_catalog."default",
+        backend_protocol text COLLATE pg_catalog."default",
+        backend_id text COLLATE pg_catalog."default" NOT NULL,
+        CONSTRAINT backend_new_pkey PRIMARY KEY (backend_pool_id, backend_id),
+        CONSTRAINT backend_new_fkey FOREIGN KEY (backend_pool_id)
+            REFERENCES public.pool (pool_id) MATCH SIMPLE
+            ON UPDATE NO ACTION
+            ON DELETE CASCADE
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.backend
+        OWNER to postgres;
+
+
+    -- Table: public.filter
+
+    -- DROP TABLE IF EXISTS public.filter;
+
+    CREATE TABLE IF NOT EXISTS public.filter
+    (
+        filter_color text COLLATE pg_catalog."default" NOT NULL,
+        filter_entry text COLLATE pg_catalog."default" NOT NULL,
+        filter_property text COLLATE pg_catalog."default" NOT NULL,
+        filter_id text COLLATE pg_catalog."default" NOT NULL,
+        tenant_id text COLLATE pg_catalog."default" NOT NULL,
+        filter_name text COLLATE pg_catalog."default",
+        CONSTRAINT filter_pkey PRIMARY KEY (filter_id, tenant_id)
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.filter
+        OWNER to postgres;
+
+
+    -- Table: public.filter_mapping
+
+    -- DROP TABLE IF EXISTS public.filter_mapping;
+
+    CREATE TABLE IF NOT EXISTS public.filter_mapping
+    (
+        api_id text COLLATE pg_catalog."default" NOT NULL,
+        filter_map_scope text COLLATE pg_catalog."default" NOT NULL,
+        filter_map_filter_id text COLLATE pg_catalog."default" NOT NULL,
+        filter_map_resource_id text COLLATE pg_catalog."default" NOT NULL,
+        filter_map_method text COLLATE pg_catalog."default" NOT NULL,
+        CONSTRAINT filter_mapping_pkey PRIMARY KEY (api_id, filter_map_filter_id, filter_map_resource_id, filter_map_method),
+        CONSTRAINT fk_filter_mapping FOREIGN KEY (api_id)
+            REFERENCES public.api (api_id) MATCH SIMPLE
+            ON UPDATE NO ACTION
+            ON DELETE CASCADE
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.filter_mapping
+        OWNER to postgres;
+
+    -- Table: public.oauth_app
+
+    -- DROP TABLE IF EXISTS public.oauth_app;
+
+    CREATE TABLE IF NOT EXISTS public.oauth_app
+    (
+        oauth_consumer_key text COLLATE pg_catalog."default" NOT NULL,
+        oauth_consumer_secret text COLLATE pg_catalog."default",
+        oauth_application_id text COLLATE pg_catalog."default",
+        oauth_grant_types text COLLATE pg_catalog."default",
+        tenant_id text COLLATE pg_catalog."default",
+        CONSTRAINT outh_app_pkey PRIMARY KEY (oauth_consumer_key)
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.oauth_app
+        OWNER to postgres;
+
+
+    -- Table: public.paths
+
+    -- DROP TABLE IF EXISTS public.paths;
+
+    CREATE TABLE IF NOT EXISTS public.paths
+    (
+        api_id text COLLATE pg_catalog."default" NOT NULL,
+        path_resource_id text COLLATE pg_catalog."default" NOT NULL,
+        path_resource_path text COLLATE pg_catalog."default",
+        path_method text COLLATE pg_catalog."default" NOT NULL,
+        CONSTRAINT paths_pkey PRIMARY KEY (api_id, path_resource_id, path_method),
+        CONSTRAINT fk_paths_api FOREIGN KEY (api_id)
+            REFERENCES public.api (api_id) MATCH SIMPLE
+            ON UPDATE NO ACTION
+            ON DELETE CASCADE
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.paths
+        OWNER to postgres;
+
+
+    -- Table: public.pool_mapping
+
+    -- DROP TABLE IF EXISTS public.pool_mapping;
+
+    CREATE TABLE IF NOT EXISTS public.pool_mapping
+    (
+        api_id text COLLATE pg_catalog."default" NOT NULL,
+        pool_map_pool_id text COLLATE pg_catalog."default" NOT NULL,
+        pool_map_scope text COLLATE pg_catalog."default",
+        pool_map_resource_id text COLLATE pg_catalog."default" NOT NULL,
+        pool_map_method text COLLATE pg_catalog."default" NOT NULL,
+        CONSTRAINT pool_mapping_pkey PRIMARY KEY (api_id, pool_map_pool_id, pool_map_resource_id, pool_map_method),
+        CONSTRAINT fk_pool_mapping FOREIGN KEY (api_id)
+            REFERENCES public.api (api_id) MATCH SIMPLE
+            ON UPDATE NO ACTION
+            ON DELETE CASCADE
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.pool_mapping
+        OWNER to postgres;
+
+
+    -- Table: public.role
+
+    -- DROP TABLE IF EXISTS public.role;
+
+    CREATE TABLE IF NOT EXISTS public.role
+    (
+        role_id text COLLATE pg_catalog."default",
+        role_name text COLLATE pg_catalog."default"
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.role
+        OWNER to postgres;
+
+    -- Table: public.scope
+
+    -- DROP TABLE IF EXISTS public.scope;
+
+    CREATE TABLE IF NOT EXISTS public.scope
+    (
+        scope_id text COLLATE pg_catalog."default",
+        scope_name text COLLATE pg_catalog."default",
+        tenant_id text COLLATE pg_catalog."default"
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.scope
+        OWNER to postgres;
+
+
+    -- Table: public.subscription
+
+    -- DROP TABLE IF EXISTS public.subscription;
+
+    CREATE TABLE IF NOT EXISTS public.subscription
+    (
+        sub_application_id text COLLATE pg_catalog."default" NOT NULL,
+        sub_api_id text COLLATE pg_catalog."default" NOT NULL,
+        tenant_id text COLLATE pg_catalog."default",
+        user_id text COLLATE pg_catalog."default",
+        sub_created_time text COLLATE pg_catalog."default",
+        sub_updated_time text COLLATE pg_catalog."default",
+        CONSTRAINT subscription_pkey PRIMARY KEY (sub_application_id, sub_api_id),
+        CONSTRAINT fk_subscription FOREIGN KEY (sub_api_id)
+            REFERENCES public.api (api_id) MATCH SIMPLE
+            ON UPDATE NO ACTION
+            ON DELETE CASCADE
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.subscription
+        OWNER to postgres;
+
+
+    -- Table: public.throttling
+
+    -- DROP TABLE IF EXISTS public.throttling;
+
+    CREATE TABLE IF NOT EXISTS public.throttling
+    (
+        throttle_window_size text COLLATE pg_catalog."default" NOT NULL,
+        throttle_allowed_count text COLLATE pg_catalog."default" NOT NULL,
+        throttle_type text COLLATE pg_catalog."default" NOT NULL,
+        throttle_id text COLLATE pg_catalog."default" NOT NULL,
+        tenant_id text COLLATE pg_catalog."default" NOT NULL,
+        throttler_name text COLLATE pg_catalog."default",
+        CONSTRAINT throttling_pkey PRIMARY KEY (throttle_id, tenant_id)
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.throttling
+        OWNER to postgres;
+
+
+    -- Table: public.throttling_mapping
+
+    -- DROP TABLE IF EXISTS public.throttling_mapping;
+
+    CREATE TABLE IF NOT EXISTS public.throttling_mapping
+    (
+        api_id text COLLATE pg_catalog."default" NOT NULL,
+        throttle_map_throttle_id text COLLATE pg_catalog."default" NOT NULL,
+        throttle_map_scope text COLLATE pg_catalog."default",
+        throttle_map_resource_id text COLLATE pg_catalog."default",
+        throttle_map_method text COLLATE pg_catalog."default",
+        CONSTRAINT throttling_mapping_pkey PRIMARY KEY (api_id, throttle_map_throttle_id),
+        CONSTRAINT fk_throttling_mapping FOREIGN KEY (api_id)
+            REFERENCES public.api (api_id) MATCH SIMPLE
+            ON UPDATE NO ACTION
+            ON DELETE CASCADE
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.throttling_mapping
+        OWNER to postgres;
+
+
+    -- Table: public.validator
+
+    -- DROP TABLE IF EXISTS public.validator;
+
+    CREATE TABLE IF NOT EXISTS public.validator
+    (
+        api_id text COLLATE pg_catalog."default",
+        validator_id text COLLATE pg_catalog."default",
+        validator_resource_id text COLLATE pg_catalog."default",
+        validator_parameter_type text COLLATE pg_catalog."default",
+        validator_aspect text COLLATE pg_catalog."default",
+        validator_parameter text COLLATE pg_catalog."default",
+        validator_datatype text COLLATE pg_catalog."default",
+        CONSTRAINT fk_validator_api FOREIGN KEY (api_id)
+            REFERENCES public.api (api_id) MATCH SIMPLE
+            ON UPDATE NO ACTION
+            ON DELETE CASCADE
+    )
+    WITH (
+        OIDS = FALSE
+    )
+    TABLESPACE pg_default;
+
+    ALTER TABLE IF EXISTS public.validator
+        OWNER to postgres;
