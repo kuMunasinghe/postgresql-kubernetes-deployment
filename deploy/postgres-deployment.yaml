@@ -20,10 +20,6 @@ spec:
       labels:
         app: postgres
     spec:
-      # initContainers:
-      # Init containers are exactly like regular containers, except:
-      # - Init containers always run to completion.
-      # - Each init container must complete successfully before the next one starts.
       containers:
         - name: postgres
           image: postgres:11
@@ -52,12 +48,9 @@ spec:
                   key: password
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
-            # - name: POSTGRES_DB
-            #   value: api_backend
           ports:
             - containerPort: 5432
               name: postgres
-          # command: [ "bin/sh", "-c","psql -d api_backend -U admin -p 5432 -a -q -f docker-entrypoint-initdb.d/init.sql" ]
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
