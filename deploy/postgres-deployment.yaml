@@ -46,19 +46,25 @@ spec:
             periodSeconds: 30
           env:
             - name: POSTGRES_USER
-              value: admin
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: username
             - name: POSTGRES_PASSWORD
-              value: pwd
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
             - name: POSTGRES_DB
-              value: api_back
+              value: api_backend
           ports:
             - containerPort: 5432
               name: postgres
-      #   volumeMounts:
-      #   - name: postgres-storage
-      #     mountPath: /var/lib/postgresql/data
-      # volumes:
-      # - name: postgres-storage
-      #   persistentVolumeClaim:
-      #     claimName: postgres-pvc
+          volumeMounts:
+          - name: postgres-storage
+            mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
       restartPolicy: Always
