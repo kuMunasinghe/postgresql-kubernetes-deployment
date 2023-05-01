@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name:  postgres
+  name: postgres
   namespace: default
   labels:
-    app:  postgres
+    app: postgres
 spec:
   selector:
     matchLabels:
@@ -18,47 +18,47 @@ spec:
   template:
     metadata:
       labels:
-        app:  postgres
+        app: postgres
     spec:
       # initContainers:
-        # Init containers are exactly like regular containers, except:
-          # - Init containers always run to completion.
-          # - Each init container must complete successfully before the next one starts.
+      # Init containers are exactly like regular containers, except:
+      # - Init containers always run to completion.
+      # - Each init container must complete successfully before the next one starts.
       containers:
-      - name:  postgres
-        image:  postgres:11
-        resources:
-          requests:
-            cpu: 500m
-            memory: 1000Mi
-          limits:
-            cpu: 1000m
-            memory: 2000Mi
-        # readinessProbe:
-        #   tcpSocket:
-        #     port: 5432
-        #   initialDelaySeconds: 10
-        #   periodSeconds: 5
-        # livenessProbe:
-        #   tcpSocket:
-        #     port: 5432
-        #   initialDelaySeconds: 30
-        #   periodSeconds: 30
-        env:
-        - name: POSTGRES_USER
-          value: admin
-        - name: POSTGRES_PASSWORD
-          value: pwd
-        - name: POSTGRES_DB
-          value: api_back
-        ports:
-        - containerPort:  5432
-          name:  postgres
-        volumeMounts:
-        - name: postgres-storage
-          mountPath: /var/lib/postgresql/data
-      volumes:
-      - name: postgres-storage
-        persistentVolumeClaim:
-          claimName: postgres-pvc
+        - name: postgres
+          image: postgres:11
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1000Mi
+            limits:
+              cpu: 1000m
+              memory: 2000Mi
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          env:
+            - name: POSTGRES_USER
+              value: admin
+            - name: POSTGRES_PASSWORD
+              value: pwd
+            - name: POSTGRES_DB
+              value: api_back
+          ports:
+            - containerPort: 5432
+              name: postgres
+      #   volumeMounts:
+      #   - name: postgres-storage
+      #     mountPath: /var/lib/postgresql/data
+      # volumes:
+      # - name: postgres-storage
+      #   persistentVolumeClaim:
+      #     claimName: postgres-pvc
       restartPolicy: Always
