@@ -3,14 +3,8 @@ kind: ConfigMap
 metadata:
   name: postgres-init-script
   namespace: default
+  annotations:
+    reloader.stakater.com/match: "true"
 data:
   init.sql: |
-    CREATE DATABASE tester;
-    CREATE USER admin;
-    GRANT ALL PRIVILEGES ON DATABASE api_backend TO admin;
-    \c api_backend;
-    CREATE TABLE IF NOT EXISTS tt (test int);
-    INSERT INTO tt VALUES (1);
-
-
-
+    
