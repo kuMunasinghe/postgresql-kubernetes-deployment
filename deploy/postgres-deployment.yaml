@@ -34,37 +34,31 @@ spec:
           limits:
             cpu: 1000m
             memory: 2000Mi
+        readinessProbe:
+          tcpSocket:
+            port: 5432
+          initialDelaySeconds: 10
+          periodSeconds: 5
         livenessProbe:
           tcpSocket:
-            port: 80
-          initialDelaySeconds: 5
-          timeoutSeconds: 5
-          successThreshold: 1
-          failureThreshold: 3
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /_status/healthz
-            port: 80
-          initialDelaySeconds: 5
-          timeoutSeconds: 2
-          successThreshold: 1
-          failureThreshold: 3
-          periodSeconds: 10
+            port: 5432
+          initialDelaySeconds: 30
+          periodSeconds: 30
         env:
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: postgres
-              key: DB_HOST
+        - name: POSTGRES_USER
+          value: admin
+        - name: POSTGRES_PASSWORD
+          value: pwd
+        - name: POSTGRES_DB
+          value: api_back
         ports:
         - containerPort:  5432
           name:  postgres
         volumeMounts:
-        - name: localtime
-          mountPath: /etc/localtime
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
       volumes:
-        - name: localtime
-          hostPath:
-            path: /usr/share/zoneinfo/Asia/Shanghai
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
       restartPolicy: Always
