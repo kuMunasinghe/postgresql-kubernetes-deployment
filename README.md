@@ -12,11 +12,11 @@
 ## Installation
 
 - make a directory</br>
-> mkdir <dir_name>
+<pre>mkdir < dir_name > </pre> 
 - iniate a kustomization file</br>
-> kustomize init </br>
+<pre> kustomize init </pre>
 ***or*** </br>
-> touch kustomization
+<pre>touch kustomization</pre>
 - add below tags
 <pre>
 resources:
@@ -37,4 +37,4 @@ configMapGenerator:
 
 
 
-##### default psql password --> postgresql 
+###### ! default psql password --> postgresql 
