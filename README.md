@@ -3,6 +3,7 @@
 
 
 - kubernates  manifests for deploying postgres deployment with persistence storage.
+- kubernates manifests are managed by ***Kustomize***
 
 ## Requirement
 
