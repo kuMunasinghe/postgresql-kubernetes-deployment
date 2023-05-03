@@ -7,6 +7,8 @@ metadata:
     app: postgres
   annotations:
     reloader.stakater.com/auto: "true"
+    configmap.reloader.stakater.com/reload: "postgres-init-script"
+    secret.reloader.stakater.com/reload: "postgres-secret"
 spec:
   selector:
     matchLabels:
