@@ -33,7 +33,7 @@ configMapGenerator:
 
 </pre>
 - Apply PostgreSQl manifests.
-<pre> kubectl apply -k < dir >
+<pre> kubectl apply -k < dir > </pre>
 
 - Get PostgreSQL database password
 <pre> kubectl get secret <SECRET_NAME> -o jsonpath="{.data.password}" | base64 --decode </pre>
