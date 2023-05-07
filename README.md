@@ -17,7 +17,7 @@
 - iniate a kustomization file</br>
 <pre> kustomize init </pre>
 ***or*** </br>
-<pre>touch kustomization</pre>
+<pre>touch kustomization.yaml</pre>
 - add below tags
 <pre>
 resources:
