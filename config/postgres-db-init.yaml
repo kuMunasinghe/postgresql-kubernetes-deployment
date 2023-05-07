@@ -7,4 +7,20 @@ metadata:
     reloader.stakater.com/match: "true"
 data:
   init.sql: |
-    
+
+    -- EXAMPLE SQL
+
+    CREATE DATABASE test_db;
+
+    GRANT ALL PRIVILEGES ON DATABASE test_db TO postgres;
+    GRANT ALL PRIVILEGES ON DATABASE test TO postgres;
+
+    \c test_db;
+
+    CREATE TABLE customers (
+        id SERIAL PRIMARY KEY,
+        name TEXT,
+        email TEXT,
+        age INTEGER
+    );
+
