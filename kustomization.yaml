@@ -7,3 +7,4 @@ resources:
   - "deploy/postgres-pv-claim.yaml"
   - "secret/postgres-secret.yaml"
   - "deploy/postgres-deployment.yaml"
+  - "https://raw.githubusercontent.com/stakater/Reloader/master/deployments/kubernetes/reloader.yaml"
