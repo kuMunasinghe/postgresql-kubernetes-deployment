@@ -38,3 +38,5 @@ configMapGenerator:
 - Get PostgreSQL database password
 <pre> kubectl get secrets </pre>
 <pre> kubectl get secret < SECRET_NAME > -o jsonpath="{.data.password}" | base64 --decode </pre>
+
+Thank you !
