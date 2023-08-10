@@ -9,6 +9,8 @@ metadata:
     reloader.stakater.com/auto: "true"
     configmap.reloader.stakater.com/reload: "postgres-init-script"
     secret.reloader.stakater.com/reload: "postgres-secret"
+    notifications.argoproj.io/subscribe.on-sync-succeeded: "gmail:munasingheku@gmail.com"
+
 spec:
   selector:
     matchLabels:
